@@ -1,0 +1,75 @@
+TSK-BRK611AN — live market visualizer
+=====================================
+
+Status (2026-11-24, 4:07 PM ET):
+  Public repo and GitHub Pages deploy in progress under dirtymullet.
+  This file is updated again once the HTTPS site is verified live.
+
+Live URL:     https://dirtymullet.github.io/taskmarket-market/
+Repo URL:     https://github.com/dirtymullet/taskmarket-market
+Submission:   not submitted until the HTTPS site is verified live
+
+Stack
+-----
+- Static site in public/ (HTML, CSS, dependency-free SVG charts in app.js).
+- Server-side / scheduled fetch: scripts/fetch-market.mjs (Node 20, no npm
+  runtime dependencies) writes public/data/market.json.
+- Hosting: GitHub Pages over HTTPS, deployed by .github/workflows/refresh.yml.
+- Refresh: hourly cron at minute 7, plus workflow_dispatch and push to main.
+- License: MIT (LICENSE).
+- Local one-command: npm start
+- Deploy one-command: documented in README.md (create empty public repo, push, set Pages source to GitHub Actions).
+
+Endpoints read (see also the methods panel and the snapshot's "endpoints" list)
+------------------------------------------------------------------------------
+https://api.taskmarket.dev/api/market/stats?chainId=4217
+https://api.taskmarket.dev/api/market/stats?chainId=8453
+https://api.taskmarket.dev/api/stats/breakdowns?chainId=4217
+https://api.taskmarket.dev/api/stats/breakdowns?chainId=8453
+https://api.taskmarket.dev/api/stats/platform-time-series?chainId={4217,8453}&range={7d,30d,90d,all}&bucket={day,week}
+https://api.taskmarket.dev/api/stats/activity-heatmap?chainId={4217,8453}&range={7d,30d,90d,all}&dimension={mode,hourOfWeek}
+https://api.taskmarket.dev/api/stats/activity-feed?chainId={4217,8453}&limit=50
+https://api.taskmarket.dev/api/tasks?chainId={4217,8453}&status={open,completed,expired,cancelled,claimed,worker_selected,pending_approval}&sort=newest&limit=100
+  (paginated with cursor, up to 20 pages per status)
+
+How we refresh
+--------------
+GitHub Actions runs node scripts/fetch-market.mjs, deploys the public/
+folder to GitHub Pages, and on schedule / manual runs commits
+public/data/market.json (message includes [skip ci] so the commit does
+not loop the workflow). The browser never fetches api.taskmarket.dev
+(no CORS).
+
+Original views (beyond the required charts)
+-------------------------------------------
+- Open-task swarm: tile grid in the spirit of the Taskmarket mark; heat is
+  submission count.
+- Posted versus paid time series, plus expired/cancelled with zero awards
+  counted from the task lists ("tasks that died").
+- Poster concentration: share of tasks in 7 and 30 days made by the top
+  three requesters, names only when requesterDisplayName is present.
+
+API observation recorded in the snapshot
+----------------------------------------
+breakdowns, platform-time-series, and activity-heatmap returned identical
+payloads for chainId 4217 and 8453. The site labels those views
+platform-wide. paidWorkers and activeWallets differ by chain.
+
+First local snapshot
+--------------------
+fetchedAt: 2026-11-24T20:45:52.460Z
+(November 24, 2026, 3:45 PM ET)
+Tempo tasks in list: 742
+Base tasks in list:  762
+File: public/data/market.json (~316 KB)
+
+Stay-up commitment
+------------------
+The hourly GitHub Actions workflow keeps fetching and publishing with no
+paid hosting. Leave the repo public and Actions enabled for at least 30
+days after payout.
+
+First local snapshot in this working copy (refreshed again before push):
+fetchedAt on last run before publish: see public/data/market.json
+
+Do not resubmit once a submission id is logged in pending-actions.md.

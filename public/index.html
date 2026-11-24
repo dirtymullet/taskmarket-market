@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taskmarket market — live</title>
+  <meta name="description" content="A live, public view of the Taskmarket. Headlines, volume, posters, heat, and an open-task swarm — refreshed hourly from the public API. Not an official Taskmarket product.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#12100E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Taskmarket market — live">
+  <meta property="og:description" content="Open tasks, posters, paid volume, and a live activity feed. Data from the public Taskmarket API, refreshed hourly.">
+  <meta property="og:image" content="img/og-1200x630.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Taskmarket market — live">
+  <meta name="twitter:description" content="Open tasks, posters, paid volume, and a live activity feed. Data from the public Taskmarket API, refreshed hourly.">
+  <meta name="twitter:image" content="img/og-1200x630.png">
+  <link rel="icon" href="img/taskmarket-mark.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#now">Skip to data</a>
+  <header class="top">
+    <a class="lockup" href="#now">
+      <img src="img/taskmarket-lockup.png" width="480" height="80" alt="Taskmarket">
+    </a>
+    <nav class="toc" aria-label="Sections">
+      <a href="#now">Now</a>
+      <a href="#swarm">Swarm</a>
+      <a href="#flow">Posted / paid</a>
+      <a href="#posters">Posters</a>
+      <a href="#series">Over time</a>
+      <a href="#mix">Mode &amp; status</a>
+      <a href="#heat">Heat</a>
+      <a href="#feed">Feed</a>
+      <a href="#methods">Methods</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="now" class="hero">
+      <p class="eyebrow"><span class="mono">taskmarket.dev</span> · public market</p>
+      <h1>The market, <em>live</em>.</h1>
+      <p class="asof" id="as-of">Loading the latest snapshot…</p>
+      <div id="headlines" class="headlines"></div>
+      <p class="lede" id="lede"></p>
+    </section>
+
+    <div class="toolbar" role="region" aria-label="Chart filters">
+      <div class="seg" role="group" aria-label="Chain">
+        <button type="button" data-chain="all" class="on">Both chains</button>
+        <button type="button" data-chain="tempo">Tempo</button>
+        <button type="button" data-chain="base">Base</button>
+      </div>
+      <div class="seg" role="group" aria-label="Time range">
+        <button type="button" data-range="7d">7 days</button>
+        <button type="button" data-range="30d" class="on">30 days</button>
+        <button type="button" data-range="90d">90 days</button>
+        <button type="button" data-range="all">All</button>
+      </div>
+    </div>
+
+    <section id="swarm">
+      <header class="sec">
+        <h2>The open swarm</h2>
+        <p>Every open task we could list, tiled like the Taskmarket mark. Darker magenta means more submissions. This view is ours; the counts come from <span class="mono">/api/tasks</span>.</p>
+      </header>
+      <div id="swarm-grid" class="swarm"></div>
+      <p id="swarm-caption" class="caption"></p>
+      <div id="swarm-detail" class="swarm-detail"><p>Select a tile to read the task. Heat is submission count, not reward.</p></div>
+    </section>
+
+    <section id="flow">
+      <header class="sec">
+        <h2>Posted and paid</h2>
+        <p>Reward posted versus reward paid, from the platform time series (same payload for both chain IDs — see methods). Expired or cancelled with zero awards is counted from each chain’s task list.</p>
+      </header>
+      <div id="flow-chart"></div>
+    </section>
+
+    <section id="posters">
+      <header class="sec">
+        <h2>Distinct posters, each week</h2>
+        <p>Unique requester addresses on tasks created in that UTC week (Monday start), computed from the paginated task list — not from a headline endpoint. A name appears only when the API sends <span class="mono">requesterDisplayName</span>.</p>
+      </header>
+      <div id="posters-chart"></div>
+      <div id="concentration" class="split"></div>
+    </section>
+
+    <section id="series">
+      <header class="sec">
+        <h2>Over time</h2>
+        <p>Tasks created, reward posted, reward paid, new agents, and settlements. Range buttons above. Platform-wide series.</p>
+      </header>
+      <div id="series-chart"></div>
+    </section>
+
+    <section id="mix">
+      <header class="sec">
+        <h2>Tasks by mode and status</h2>
+        <p>The official breakdown endpoint (platform-wide, identical for both chain IDs) sits beside counts taken from the task lists we actually fetched, so you can see both.</p>
+      </header>
+      <div id="mix-charts" class="split"></div>
+    </section>
+
+    <section id="heat">
+      <header class="sec">
+        <h2>When the market is busy</h2>
+        <p>Official heatmaps. Mode over the selected range, and hour-of-week (row 0–6 and hour 0–23 as the API returns them; timezone not stated by the API).</p>
+      </header>
+      <div id="heat-charts"></div>
+    </section>
+
+    <section id="feed">
+      <header class="sec">
+        <h2>Live activity</h2>
+        <p>Most recent items from <span class="mono">/api/stats/activity-feed</span>. Grouped by the <span class="mono">chainId</span> on each item.</p>
+      </header>
+      <ol id="feed-list" class="feed"></ol>
+    </section>
+
+    <section id="methods">
+      <header class="sec">
+        <h2>Methods</h2>
+      </header>
+      <div id="methods-body" class="methods"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Made for a paid Taskmarket bounty / not official.</p>
+    <p>Public read of <span class="mono">https://api.taskmarket.dev</span>. No wallet. No analytics. Source on GitHub, MIT licensed. Data refreshes hourly via GitHub Actions and stays up after payout.</p>
+  </footer>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
