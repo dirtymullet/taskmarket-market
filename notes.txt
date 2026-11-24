@@ -1,27 +1,52 @@
 TSK-BRK611AN — live market visualizer
 =====================================
 
-Status (2026-11-24, 4:07 PM ET):
-  Public repo and GitHub Pages deploy in progress under dirtymullet.
-  This file is updated again once the HTTPS site is verified live.
+Live URL:  https://dirtymullet.github.io/taskmarket-market/
+Repo URL:  https://github.com/dirtymullet/taskmarket-market
+License:   MIT (LICENSE in the repo root)
 
-Live URL:     https://dirtymullet.github.io/taskmarket-market/
-Repo URL:     https://github.com/dirtymullet/taskmarket-market
-Submission:   not submitted until the HTTPS site is verified live
+Verified 24 Nov 2026, 4:08 PM ET
+--------------------------------
+Public HTTPS, no login, no wallet. HTTP 200 with
+strict-transport-security and https_enforced on GitHub Pages.
+
+The first Actions fetch wrote public/data/market.json at
+2026-11-24T21:08:08.664Z (4:08 PM ET). A check moments later
+matched the public API on all six Tempo headline fields
+(registeredWorkers 148426, activeWorkers7d 514, activeAgents7d 475,
+openTasks 77, paidWorkers 161, activeWallets 934) and on Base
+paidWorkers 470 and activeWallets 3525.
 
 Stack
 -----
-- Static site in public/ (HTML, CSS, dependency-free SVG charts in app.js).
-- Server-side / scheduled fetch: scripts/fetch-market.mjs (Node 20, no npm
-  runtime dependencies) writes public/data/market.json.
-- Hosting: GitHub Pages over HTTPS, deployed by .github/workflows/refresh.yml.
-- Refresh: hourly cron at minute 7, plus workflow_dispatch and push to main.
-- License: MIT (LICENSE).
-- Local one-command: npm start
-- Deploy one-command: documented in README.md (create empty public repo, push, set Pages source to GitHub Actions).
+- scripts/fetch-market.mjs — Node 20 fetch, no npm runtime dependencies.
+  Writes public/data/market.json. Never called from the browser.
+- public/ — static HTML, CSS, and dependency-free SVG charts (app.js).
+  Brand fonts and lockup from the public Taskmarket brand kit.
+  Share image: public/img/og-1200x630.png
+- Hosting: GitHub Pages over HTTPS, deployed by
+  .github/workflows/refresh.yml
+- No wallet libraries. No analytics or tracking.
 
-Endpoints read (see also the methods panel and the snapshot's "endpoints" list)
-------------------------------------------------------------------------------
+How and how often it refreshes
+------------------------------
+GitHub Actions workflow "Refresh market and deploy Pages"
+(.github/workflows/refresh.yml), state: active.
+
+- Hourly cron: 7 * * * * (minute 7 of every hour, UTC)
+- Also on workflow_dispatch and on push to main
+- Each run: node scripts/fetch-market.mjs, then deploy the public/
+  folder to GitHub Pages. On schedule or manual dispatch it also
+  commits public/data/market.json (message includes [skip ci]) so
+  the snapshot stays inspectable in git.
+- The browser only loads data/market.json from this site. It never
+  calls api.taskmarket.dev (the API does not allow CORS).
+- The page shows a visible “data as of” timestamp in Eastern Time.
+- Intended to stay up at least 30 days after payout with no paid
+  hosting, as long as the repo stays public and Actions stay enabled.
+
+Endpoints used
+--------------
 https://api.taskmarket.dev/api/market/stats?chainId=4217
 https://api.taskmarket.dev/api/market/stats?chainId=8453
 https://api.taskmarket.dev/api/stats/breakdowns?chainId=4217
@@ -32,44 +57,45 @@ https://api.taskmarket.dev/api/stats/activity-feed?chainId={4217,8453}&limit=50
 https://api.taskmarket.dev/api/tasks?chainId={4217,8453}&status={open,completed,expired,cancelled,claimed,worker_selected,pending_approval}&sort=newest&limit=100
   (paginated with cursor, up to 20 pages per status)
 
-How we refresh
+The methods panel on the site lists the exact URLs from the snapshot
+and explains two important facts:
+
+- On the snapshots taken so far, /api/stats/breakdowns,
+  /api/stats/platform-time-series and /api/stats/activity-heatmap
+  returned the same payload for chainId 4217 and 8453. Those views
+  are labeled platform-wide. /api/market/stats differs by chain on
+  paidWorkers and activeWallets.
+- Distinct posters per week, the open-task swarm, poster
+  concentration, and expired-or-cancelled tasks with zero awards
+  are computed from each chain’s paginated /api/tasks list. A poster
+  name is shown only when the API provides requesterDisplayName.
+  Reward amounts are 6-decimal integers, divided by 1,000,000.
+
+Deploy command
 --------------
-GitHub Actions runs node scripts/fetch-market.mjs, deploys the public/
-folder to GitHub Pages, and on schedule / manual runs commits
-public/data/market.json (message includes [skip ci] so the commit does
-not loop the workflow). The browser never fetches api.taskmarket.dev
-(no CORS).
+Local (Node 20+ and Python 3):
 
-Original views (beyond the required charts)
--------------------------------------------
-- Open-task swarm: tile grid in the spirit of the Taskmarket mark; heat is
-  submission count.
-- Posted versus paid time series, plus expired/cancelled with zero awards
-  counted from the task lists ("tasks that died").
-- Poster concentration: share of tasks in 7 and 30 days made by the top
-  three requesters, names only when requesterDisplayName is present.
+  npm start
 
-API observation recorded in the snapshot
-----------------------------------------
-breakdowns, platform-time-series, and activity-heatmap returned identical
-payloads for chainId 4217 and 8453. The site labels those views
-platform-wide. paidWorkers and activeWallets differ by chain.
+That fetches a fresh snapshot and serves public/ at
+http://127.0.0.1:8080
 
-First local snapshot
---------------------
-fetchedAt: 2026-11-24T20:45:52.460Z
-(November 24, 2026, 3:45 PM ET)
-Tempo tasks in list: 742
-Base tasks in list:  762
-File: public/data/market.json (~316 KB)
+GitHub Pages (after this public repo exists):
 
-Stay-up commitment
-------------------
-The hourly GitHub Actions workflow keeps fetching and publishing with no
-paid hosting. Leave the repo public and Actions enabled for at least 30
-days after payout.
+  git clone https://github.com/dirtymullet/taskmarket-market.git
+  cd taskmarket-market
+  # Settings → Pages → Source: GitHub Actions (already set here)
+  git push
 
-First local snapshot in this working copy (refreshed again before push):
-fetchedAt on last run before publish: see public/data/market.json
+The workflow deploys public/ and the hourly schedule keeps it current.
+More detail is in README.md.
 
-Do not resubmit once a submission id is logged in pending-actions.md.
+Original views
+--------------
+- Open-task swarm: tile grid in the spirit of the Taskmarket mark;
+  heat is submission count.
+- Posted versus paid time series, plus expired/cancelled with zero
+  awards counted from the task lists.
+- Poster concentration: share of tasks in 7 and 30 days made by the
+  top three requesters, with names only when requesterDisplayName
+  is present.
